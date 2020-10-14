@@ -1,4 +1,4 @@
-"""Finds reviews from Flipkart URL of a product, and saves in a reviews.txt
+"""Finds reviews from Flipkart URL of a product, and saves in a reviews.csv
 
 @author : Sreedev S
 
@@ -9,8 +9,8 @@ filename : str
 
 Returns
 -------
-file : reviews.txt, reviews.csv
-    A files containing Name of the item, price, rating, and review
+file : reviews.csv
+    A file containing Name of the item, price, rating, and review
 """
 
 
@@ -22,7 +22,7 @@ def get_details(soup):
     reviews = {}
     #Checking whether Title is given for the product
     try:
-        title = soup.find(class_="o9Xx3p _1_odLJ").get_text().strip()
+        title = soup.find(class_="_2cLu-l _3g-u9b").get_text().strip()
         title = remove_comma(title)
     except:
         title = "Not Found"
@@ -53,7 +53,7 @@ def get_details(soup):
                 reviews[i]['review_title'] = remove_comma(reviews[i]['review_title']) #removing comma to be saved as csv
                 reviews[i]['review'] = remove_comma(reviews[i]['review'])
             except:
-                reviews[i]['rating'] = ""
+                reviews[i]['rating'] = -1
                 reviews[i]['review_title'] = "Review Not Found"
                 reviews[i]['review'] = ""
     except:
@@ -61,7 +61,7 @@ def get_details(soup):
         reviews[i] = {}
         reviews[i]['title'] = title
         reviews[i]['price'] = price
-        reviews[i]['rating'] = ""
+        reviews[i]['rating'] = -1
         reviews[i]['review_title'] = "Review Not Found"
         reviews[i]['review'] = ""
     next_path = ''
@@ -138,7 +138,7 @@ def main(filename):
     file1 = open(filename, 'r') 
     urls = file1.readlines() 
     file1.close()
-    file2 = open('reviews.txt','w')
+    # file2 = open('reviews.txt','w')
     file3 = open('reviews.csv','w')
 
     file3.writelines('Item,Price,Rating,Review\n')
@@ -155,7 +155,6 @@ def main(filename):
             continue
 
         URL = convert_url_review(URL)
-        print(URL)
         #for checking whether next page exists
         isnext = True
         #Tracking the run, run+1 at any stage is equal to number of pages it has been through
@@ -172,11 +171,12 @@ def main(filename):
             soup = BeautifulSoup(page.content, 'html.parser')
             reviews, next_path = get_details(soup)
             for review in reviews.values():
-                if run == 0:
-                    file2.writelines(review['title']+ '\n')
-                    file2.writelines('Price : ' +review['price'] + '\n') 
-                file2.writelines( "'" + review['review_title'] +"' " + review['rating'] + " " + review['review'] + "\n")
-                file3.writelines(review['title']+','+review['price']+','+  review['rating']+",'" + review['review_title'] +"' " + review['review'] + "\n")
+                if review['rating'] != -1 :
+                    # if run == 0:
+                        # file2.writelines(review['title']+ '\n')
+                        # file2.writelines('Price : ' +review['price'] + '\n') 
+                    # file2.writelines( "'" + review['review_title'] +"' " + review['rating'] + " " + review['review'] + "\n")
+                    file3.writelines(review['title']+','+review['price']+','+  review['rating']+",'" + review['review_title'] +"' " + review['review'] + "\n")
             #if needed to limit number of runs uncomment
             if ( next_path == ''): # or (run == 100):
                 isnext = False
@@ -184,8 +184,11 @@ def main(filename):
             else:
                 URL = get_next_url(URL, next_path)
             run += 1
+        
+        # print("URL ",URL)
+        # print("next_path ",next_path)
 
-    file2.close()
+    # file2.close()
     file3.close()
 
 

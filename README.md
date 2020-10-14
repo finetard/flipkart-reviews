@@ -17,3 +17,4 @@ Example file provided "urls.txt"
 
 - python flipkart-reviews.py urls.txt
 
+Creates reviews.csv, with data fetched
