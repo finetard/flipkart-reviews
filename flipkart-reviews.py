@@ -22,14 +22,14 @@ def get_details(soup):
     reviews = {}
     #Checking whether Title is given for the product
     try:
-        title = soup.find(class_="_2cLu-l _3g-u9b").get_text().strip()
+        title = soup.find(class_="_2s4DIt _1CDdy2").get_text().strip()
+        title = title[:-8]
         title = remove_comma(title)
     except:
         title = "Not Found"
-
     #Checking whether price detail is given for the product
     try:
-        price = soup.find(class_="_1vC4OE").get_text().strip()
+        price = soup.find(class_="_30jeq3").get_text().strip()
         price = price[1:]
         price = remove_comma(price, replace='')
     except:
@@ -37,16 +37,17 @@ def get_details(soup):
     
     #checking for reviews, reviews are arranged as columns, which has bundle of information like rating, review and name of person
     try:
-        re_cols = soup.find_all('div', class_='col _390CkK _1gY8H-')
+        re_cols = soup.find_all('div', class_='col _2wzgFH K0kLPL')
         for i, col in enumerate(re_cols):
             reviews[i] = {}
             reviews[i]['title'] = title
             reviews[i]['price'] = price
 
             try:
-                reviews[i]['rating'] = col.find(class_='hGSR34 E_uFuv').get_text().strip()
-                reviews[i]['review_title'] = col.find(class_='_2xg6Ul').get_text().strip()
-                review = col.find(class_='qwjRop').get_text().strip()
+                reviews[i]['rating'] = col.find(class_='_3LWZlK _1BLPMq').get_text().strip()
+                reviews[i]['review_title'] = col.find(class_='_2-N8zT').get_text().strip()
+                review = col.find(class_='t-ZTKy')
+                review = review.div.div.get_text().strip()
                 review = review[:-9] #removing 'READ MORE
                 reviews[i]['review'] = review
 
@@ -67,8 +68,8 @@ def get_details(soup):
     next_path = ''
     #checking whether a Next page of review is there and getting the link
     try:
-        next_link = soup.find('div', class_='_2zg3yZ _3KSYCY')
-        next_link = soup.find_all(class_='_3fVaIS')
+        # next_link = soup.find('div', class_='_2zg3yZ _3KSYCY')
+        next_link = soup.find_all(class_='_1LKTO3')
         
         for x in next_link:
             if x.get_text() == 'Next':
@@ -142,7 +143,6 @@ def main(filename):
     file3 = open('reviews.csv','w')
 
     file3.writelines('Item,Price,Rating,Review\n')
-
     #iterating through the urls provided in the file
     for URL in urls:
         #checking whether URL is valid or not
@@ -153,13 +153,11 @@ def main(filename):
         except:
             # print("Unreachable or Invalid URL")
             continue
-
         URL = convert_url_review(URL)
         #for checking whether next page exists
         isnext = True
         #Tracking the run, run+1 at any stage is equal to number of pages it has been through
         run = 0
-
         #going through the next links
         while(isnext):
             try:
